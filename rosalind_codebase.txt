@@ -1,0 +1,39 @@
+import pandas as pd
+import re
+
+input_dataset = []
+
+def load_input_file(filename): # load input
+  with open(filename,'r') as reader:
+    input_data = reader.readlines();
+    return(input_data)
+
+def load_rna_codon(): # load and preprocess codons dataset
+
+  df = pd.read_csv("rna_codon.csv")
+  codonsDict = df.set_index('codon').to_dict() 
+
+def translateRNAtoProtein(rna_string):
+  protein = ''
+
+  for i in range(0,len(rna_string),3):
+    codonReviewed = rna_string[i:i+3]
+    if codonReviewed in('UAA','UAG','UGA'):
+      break
+    else:
+      protein = protein + codonsDict['amino'][codonReviewed]
+
+  return(protein)
+
+def find_motif(input):
+  dna_string = input[0]
+  motif = input[1]
+
+  motif_matches = re.finditer('(?='+ motif +')',dna_string)
+  motif_positions = [match.start()+1 for match in motif_matches]
+  return(motif_positions)
+
+# call
+input_dataset = load_input_file("rosalind.txt")
+
+find_motif(input_dataset)

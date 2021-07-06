@@ -1,3 +1,6 @@
+import pandas as pd
+import re
+
 # scope: load input
 def load_input_file(fileName, mode):
   lines_with_new_line = []
@@ -14,23 +17,44 @@ def load_input_file(fileName, mode):
       data = reader.read().replace('\n','')
       return(data)
 
-# scope: create a list of fasta strings from a single string containing multiple of them
-# expected input: a string
+### scope: create a list of fasta strings from a single string containing multiple of them
+### expected input: a string
 def rosalind_fasta(data,character): 
   fasta_strings = {}
   chars_index = [i for i, letter in enumerate(data) if letter == character]
-
+  
   for pos_a, pos_b in zip(chars_index, chars_index[1:]):
-    print(chars_index[1:])
+     fasta_strings[data[pos_a+1:pos_a+14]] = data[pos_a+14:pos_b]  
+  
+  last_chars_index = chars_index[len(fasta_strings)]
+  fasta_strings[data[last_chars_index+1:last_chars_index+14]] = data[last_chars_index+14:]
 
-    fasta_strings[data[pos_a:pos_a+14]] = data[pos_a+15:pos_b]  
   return(fasta_strings)
 
+
+### scope: find GC content of a DNA string
+### expected input: a DNA string
+def calculate_GC_content(dna_string):
+  return(100*(dna_string.count('C')+dna_string.count('G'))/len(dna_string))
+
+### scope: find DNA string with highest GC content from a dictionary of DNA strings
+### a dictionary with DNA strings
+def find_max_GC_content(dna_strings):
+  gc_contents = {}
+
+  for i in dna_strings:
+    gc_contents[i] = calculate_GC_content(dna_strings[i])
+
+  max_key = max(gc_contents, key = gc_contents.get)
+  return(max_key, gc_contents[max_key])
+
+###
 def load_rna_codon(): # load and preprocess codons dataset
 
   df = pd.read_csv("rna_codon.csv")
   codonsDict = df.set_index('codon').to_dict() 
 
+###
 def translateRNAtoProtein(rna_string):
   protein = ''
 
@@ -43,7 +67,7 @@ def translateRNAtoProtein(rna_string):
 
   return(protein)
 
-#expected input: file with first line the dna string and the second the motif
+####expected input: file with first line the dna string and the second the motif
 def find_motif(input): 
   dna_string = input[0]
   motif = input[1]
@@ -54,5 +78,5 @@ def find_motif(input):
 
 # call
 input_dataset = load_input_file("rosalind.txt","as a string")
-
-print(rosalind_fasta(input_dataset,'>'))
+fasta_strings = rosalind_fasta(input_dataset,'>')
+print(find_max_GC_content(fasta_strings)) 

@@ -78,10 +78,11 @@ def find_motif(input):
   motif_positions = [match.start()+1 for match in motif_matches]
   return(motif_positions)
 
-####expected input: a dictionary of fasta_strings
+### expected input: a dictionary of fasta_strings
 def create_consensus_matrix(input_dict):
 
-  profile = [[0 for y in range(len(input_dict)+1)] for x in range(4)]
+  profile_length = len(list(input_dict.values())[0])
+  profile = [[0 for y in range(profile_length+1)] for x in range(4)]
   consensus_string = ''
   
   for member in input_dict:
@@ -96,7 +97,7 @@ def create_consensus_matrix(input_dict):
       if digit == 'T':
         profile[3][count] += 1
 
-  for i in range(len(input_dict)+1):
+  for i in range(profile_length+1):
     if profile[0][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
       consensus_string += 'A'
     if profile[1][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
@@ -111,5 +112,4 @@ def create_consensus_matrix(input_dict):
 # call
 input_dataset = load_input_file("rosalind.txt","as a string")
 fasta_strings = rosalind_fasta(input_dataset,'>',fastaLength = 14)
-print(fasta_strings)
 print(create_consensus_matrix(fasta_strings)) 

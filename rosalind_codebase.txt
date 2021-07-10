@@ -97,17 +97,18 @@ def create_consensus_matrix(input_dict):
       if digit == 'T':
         profile[3][count] += 1
 
-  for i in range(profile_length+1):
+  for i in range(profile_length):
     if profile[0][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
       consensus_string += 'A'
-    if profile[1][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
+    elif profile[1][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
       consensus_string += 'C'
-    if profile[2][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
+    elif profile[2][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
       consensus_string += 'G'
-    if profile[3][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
+    elif profile[3][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
       consensus_string += 'T'
 
   return(consensus_string,profile)
+
 
 # call
 input_dataset = load_input_file("rosalind.txt","as a string")

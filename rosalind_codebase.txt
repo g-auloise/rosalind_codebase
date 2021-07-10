@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+import numpy
 
 # scope: load input
 def load_input_file(fileName, mode):
@@ -19,15 +20,15 @@ def load_input_file(fileName, mode):
 
 ### scope: create a list of fasta strings from a single string containing multiple of them
 ### expected input: a string
-def rosalind_fasta(data,character): 
+def rosalind_fasta(data,character,fastaLength): 
   fasta_strings = {}
   chars_index = [i for i, letter in enumerate(data) if letter == character]
   
   for pos_a, pos_b in zip(chars_index, chars_index[1:]):
-     fasta_strings[data[pos_a+1:pos_a+14]] = data[pos_a+14:pos_b]  
+     fasta_strings[data[pos_a+1:pos_a+fastaLength]] = data[pos_a+fastaLength:pos_b]  
   
   last_chars_index = chars_index[len(fasta_strings)]
-  fasta_strings[data[last_chars_index+1:last_chars_index+14]] = data[last_chars_index+14:]
+  fasta_strings[data[last_chars_index+1:last_chars_index+fastaLength]] = data[last_chars_index+fastaLength:]
 
   return(fasta_strings)
 
@@ -67,7 +68,8 @@ def translateRNAtoProtein(rna_string):
 
   return(protein)
 
-####expected input: file with first line the dna string and the second the motif
+### scope: return DNA profile matrixes and consensus string
+### expected input: file with first line the dna string and the second the motif
 def find_motif(input): 
   dna_string = input[0]
   motif = input[1]
@@ -76,7 +78,38 @@ def find_motif(input):
   motif_positions = [match.start()+1 for match in motif_matches]
   return(motif_positions)
 
+####expected input: a dictionary of fasta_strings
+def create_consensus_matrix(input_dict):
+
+  profile = [[0 for y in range(len(input_dict)+1)] for x in range(4)]
+  consensus_string = ''
+  
+  for member in input_dict:
+    for count, digit in enumerate(input_dict[member]):
+
+      if digit == 'A':
+        profile[0][count] += 1
+      if digit == 'C':
+        profile[1][count] += 1
+      if digit == 'G':
+        profile[2][count] += 1
+      if digit == 'T':
+        profile[3][count] += 1
+
+  for i in range(len(input_dict)+1):
+    if profile[0][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
+      consensus_string += 'A'
+    if profile[1][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
+      consensus_string += 'C'
+    if profile[2][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
+      consensus_string += 'G'
+    if profile[3][i] == max(profile[0][i],profile[1][i], profile[2][i], profile[3][i]):
+      consensus_string += 'T'
+
+  return(consensus_string,profile)
+
 # call
 input_dataset = load_input_file("rosalind.txt","as a string")
-fasta_strings = rosalind_fasta(input_dataset,'>')
-print(find_max_GC_content(fasta_strings)) 
+fasta_strings = rosalind_fasta(input_dataset,'>',fastaLength = 14)
+print(fasta_strings)
+print(create_consensus_matrix(fasta_strings)) 

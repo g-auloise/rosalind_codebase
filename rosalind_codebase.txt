@@ -1,6 +1,10 @@
+ 
 import pandas as pd
 import re
 import numpy
+from statistics import mean
+
+dominant_alleles_possibilities = [1, 1, 1, 0.75, 0.5, 0] # correspond to couples: [AA-AA, AA-Aa, AA-aa, Aa-Aa, Aa-aa, aa-aa]
 
 # scope: load input
 def load_input_file(fileName, mode):
@@ -17,6 +21,19 @@ def load_input_file(fileName, mode):
     with open(fileName, 'r') as reader:
       data = reader.read().replace('\n','')
       return(data)
+
+### scope: transform a string to a list
+### input: a string
+def string_to_list(input_string, mode):
+  initial_list = input_string.split()
+
+  if mode == 'integers':
+    map_object = map(int,initial_list)
+    integ_list = list(map_object)
+    return(integ_list)
+
+  elif mode =='texts':
+    return initial_list
 
 ### scope: create a list of fasta strings from a single string containing multiple of them
 ### expected input: a string
@@ -109,8 +126,20 @@ def create_consensus_matrix(input_dict):
 
   return(consensus_string,profile)
 
+def calculate_expected_offsprings(offsprings,alleles_probabilities):
+  total = 0
+  
+  expected_offsprings =[num1*num2*offsprings for num1,num2 in zip(alleles_probabilities, dominant_alleles_possibilities)]
+  for element in expected_offsprings:
+    total += element
 
+  return(total)
+  
 # call
 input_dataset = load_input_file("rosalind.txt","as a string")
-fasta_strings = rosalind_fasta(input_dataset,'>',fastaLength = 14)
-print(create_consensus_matrix(fasta_strings)) 
+print(input_dataset)
+print(string_to_list(input_dataset,'integers'))
+#fasta_strings = rosalind_fasta(input_dataset,'>',fastaLength = 14)
+#print(create_consensus_matrix(fasta_strings)) 
+
+print(calculate_expected_offsprings(2,string_to_list(input_dataset,'integers')))
